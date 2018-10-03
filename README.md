@@ -18,7 +18,7 @@ To get started, please use the following steps:
 
 2. Add it to a combine reducers function. Example below:
 
-```javacript
+```jsx
 import optimizelyReducer from './reducers/optimizelyReducer.js';
 
 const reducer = combineReducers({
