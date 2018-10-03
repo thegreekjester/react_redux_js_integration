@@ -28,7 +28,7 @@ const reducer = combineReducers({
 
 3. Pass along the functionality/data from the Optimizely Reducer to the components via props. Example below:
 
-```javacript
+```jsx
 const mapStateToProps = (state) => ({state:state.optimizelyReducer});
 
 const mapDispatchToProps = (dispatch) => ({
@@ -44,7 +44,7 @@ export default App;
 
 4. Envoke the datafilemanager action via props in ONLY container componentDidMount(). Example below:
 
-```javacript
+```jsx
 componentDidMount() {
       this.props.dataFileManager('sync');
   }
@@ -54,7 +54,7 @@ componentDidMount() {
 
 A/B Testing: 
 
-```javacript
+```jsx
   // userId and attributes auto applied for all
 
   //Activate Calls
