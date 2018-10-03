@@ -52,6 +52,31 @@ componentDidMount() {
 
 5. Start Testing!!! Examples of it below:
 
+A/B Testing: 
+
+```javacript
+  // userId and attributes auto applied for all
+
+  //Activate Calls
+  //@key - Experiment Key, String, Required
+
+  
+  let variation = this.props.state.actions.activate(key)
+  
+  //GetVariation
+  //@key - Experiment Key, String, Required
+
+  
+  let variation = this.props.state.action.getVariation(key)
+  
+  //Event Tracking
+  //@key - Event key, string, Required
+
+  this.props.state.actions.event(key)
+  
+  //used as an element click track
+  <button onClick= () => this.props.state.actions.event(key) />
+```
 
 
 ## Contributing
