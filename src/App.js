@@ -20,8 +20,9 @@ class App extends Component {
 const mapStateToProps = (state) => ({state:state.optimizelyReducer});
 
 const mapDispatchToProps = (dispatch) => ({
-  dataFileManager: (timing) => dispatch({type:'USER_SERVICE'},
-                               dispatch({type:'DATAFILE_MANAGER', timing:timing}))
+  dataFileManager: (timing, id, attributes) => dispatch({type:'USER_SERVICE', id:id, attributes:attributes},
+                               dispatch({type:'DATAFILE_MANAGER', timing:timing})),
+  updateAttr: (attr) => dispatch({type:'UPDATE_ATTR', attr:attr, value:value})
 });
 
 App = withRouter(connect(mapStateToProps, mapDispatchToProps)(App));

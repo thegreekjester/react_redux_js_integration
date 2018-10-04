@@ -62,23 +62,66 @@ const intialState = {
   actions: false
 }
 
-/************************* REDUCER **********************************************************/
+/*************************************** REDUCER *******************************************************/
 
 function rootReducer(state = intialState, action) {
 
   let newState = Object.assign({}, state); // copies the state as is
   let now = new Date(); //used to make sure that the datafile check insn't too often
 
-  /********************************** Optimizely Actions (Prepare your Tests Here) ************************/
+  /********************************** Optimizely Actions (Tools to carry out your tests here) ************************/
   var optlyActions = {
     activate: (key) => {
-      var variation = newState.optlyClient.activate(key, newState.userProfile.user_id, newState.attributes);
-      return variation
+      if(newState.optlyClient){
+      return newState.optlyClient.activate(key, newState.userProfile.user_id, newState.attributes);
+    }else{
+      console.log('no client available, did not activate experiment: ', key)
+      return
+    }
     },
     event: (key) => {
+      if(newState.optlyClient){
       newState.optlyClient.track(key, newState.userProfile.user_id, newState.attributes);
-      console.log('sent', key)
+      console.log('sent event: ', key)
       return
+    }else{
+      console.log('no client available, did not send event: ', key)
+      return
+    }
+    },
+    getVariation:(key) => {
+      if(newState.optlyClient){
+      return newState.optlyClient.getVariation(key, newState.userProfile.user_id, newState.attributes)
+    }else{
+      console.log('no client available, did not get variation for experiment: ', key)
+      return
+    }
+    },
+    isFeatureEnabled: (key) => {
+      if(newState.optlyClient){
+      return newState.isFeatureEnabled(key, newState.userProfile.user_id, newState.attributes)
+    }else{
+      console.log('no client available, could not enable feature for experiment: ', key)
+      return
+    }
+    },
+    getFeatureVariable(feature_key, variable_key, type){
+      if(newState.optlyClient){
+        switch(type){
+          case 'boolean':
+            return newState.optlyClient.getFeatureVariableBoolean(feature_key, variable_key, newState.userProfile.user_id, newState.attributes)
+          case 'string':
+            return newState.optlyClient.getFeatureVariableString(feature_key, variable_key, newState.userProfile.user_id, newState.attributes)
+          case 'integer':
+            return newState.optlyClient.getFeatureVariableInteger(feature_key, variable_key, newState.userProfile.user_id, newState.attributes)
+          case 'double':
+            return newState.optlyClient.getFeatureVariableDouble(feature_key, variable_key, newState.userProfile.user_id, newState.attributes)
+          default:
+          console.log('please specify a type of feature variable to return')
+           return
+        }
+
+      }
     }
   }
 
@@ -101,8 +144,10 @@ function rootReducer(state = intialState, action) {
     return obj
   }
 
+  /****************** Initialize the Optimizely Client ********************************************/
+
   var initializeOptlyClient = (datafile) => {
-    let optimizelyClientInstance = optimizely.createInstance({ // initialize the Optimizely client when promise is resolved
+    let optimizelyClientInstance = optimizely.createInstance({
       datafile: datafile,
       userProfileService: userProfileService
     });
@@ -162,10 +207,20 @@ function rootReducer(state = intialState, action) {
       }
       /*******************************USER_SERVICE_INIT*****************************************************/
     case 'USER_SERVICE':
-      //The Following takes care of initializing the userProfile Service object that lives in the redux store
-      let userId = window.localStorage.getItem('userId'); //Checks if userID is stored in localStorage
+      var userId;
+      if(action.id){//Supplied userID via the dataFileManager call within a componentDidMount
+          userId = action.id
+          window.localStorage.setItem('userId', action.id)
+      }else{
+          userId = window.localStorage.getItem('userId'); //Checks if userID is stored in localStorage
+      }
 
-      //if they have it cached but not in store (first load on return)
+      if(action.attributes){ // if the user provided pre-defined attribution, assign it in the redux store here
+        newState.attributes = action.attributes
+      }
+      //The Following takes care of initializing the userProfile Service object that lives in the redux store
+
+      //if they have it cached/it was given but not in redux store (first load on return)
       if (userId && !newState.userProfile) {
         console.log('set user id in redux store')
         newState.userProfile = userProfileInit()
@@ -186,7 +241,11 @@ function rootReducer(state = intialState, action) {
 
       /************************************ATTRIBUTION_UPDATES*****************************************/
     case 'UPDATE_ATTR':
-    
+      if(action.attr && action.value){
+        newState.attributes[action.attr] = action.value
+      }else{
+        console.log('You need to provide a key and value to update your attributes')
+      }
       return newState;
     default:
       return state;
