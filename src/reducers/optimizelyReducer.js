@@ -99,7 +99,7 @@ function rootReducer(state = intialState, action) {
     },
     isFeatureEnabled: (key) => {
       if(newState.optlyClient){
-      return newState.isFeatureEnabled(key, newState.userProfile.user_id, newState.attributes)
+      return newState.optlyClient.isFeatureEnabled(key, newState.userProfile.user_id, newState.attributes)
     }else{
       console.log('no client available, could not enable feature for experiment: ', key)
       return
